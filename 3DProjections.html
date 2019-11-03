@@ -13,7 +13,7 @@ varying vec4 fColor;
 
 void main(){
     gl_Position = mProjection * mView * mModel * vPosition;
-    fColor = vNormal;
+    fColor = abs(vNormal);
 }
 </script>
 <script id="fragment-shader" type="x-shader/x-fragment">
@@ -34,6 +34,7 @@ void main() {
 <script type="text/javascript" src="Objects/sphere.js"></script>
 <script type="text/javascript" src="Objects/torus.js"></script>
 <script type="text/javascript" src="main.js"></script>
+
 </head>
 <body>
     <title>3D Projection</title>
@@ -46,4 +47,50 @@ void main() {
     <button id = "sphereButton">Draw Sphere</button>
     <button id = "bunnyButton">Draw Bunny</button>
     <button id = "torusButton">Draw Torus</button>
+
+    <br>
+    <br>
+    <!-- TAB LINKS -->
+    <div class = "tab">
+        <button id = "orthoButton" class="tablinks" 
+                    onclick="openTab(event,'orthographic')">Orthographic Projection</button>
+ 
+        <button id = "axonButton" class="tablinks" 
+                    onclick="openTab(event,'axonometric')">Axonometric Projection</button>
+
+        <button id = "obliqueButton" class="tablinks" 
+                    onclick="openTab(event,'oblique')">Oblique Projection</button>
+        
+        <button id = "perspectiveButton" class="tablinks" 
+                    onclick="openTab(event,'perspective')">Perspective Projection</button>
+    </div>
+
+    <br>
+    <!-- TAB CONTENT -->
+    <div id = "orthographic" style ="display: none;" class = "tabcontent">
+        <p><button id="mainElevation">Front Elevation</button></p>
+        <p><button id="plan">Plan</button></p>
+        <p><button id="rightElevation">Right Side Elevation</button></p>      
+    </div>
+
+    <div id = "axonometric" style ="display: none;" class = "tabcontent">
+        <p><button id = "isometric">Isometric</button></p>
+        <p><button id = "dimetric">Dimetric</button></p>    
+        <p><button id = "trimetric">Trimetric</button></p>        
+        <p><button id = "freeAxon">Free Mode</button></p>        
+    </div>
+
+    <div id = "oblique" style ="display: none;" class = "tabcontent">
+        <p><button id = "cavalier">Cavalier</button></p>
+        <p><button id = "cabinet">Cabinet</button></p>        
+        <p><button id = "freeOlique">Free Mode</button></p>        
+    </div>
+
+    <div id = "perspective" style ="display: none;" class = "tabcontent">
+        perspective
+    </div>
+    
+
+    <br>
+    <input type="range" id = "rySlider" min = "-180" max = "180" step = "0.01"/>
 </body></html>
