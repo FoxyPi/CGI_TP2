@@ -5,19 +5,32 @@ var draw_function;
 var currentMModel;
 var filled;
 var canvas;
+var xScale, yScale;
 var i = 0;
 var rxValue;
 var ryValue;
 var theta;
 var gamma;
 
+function $(x){
+    return document.getElementById(x);
+}
+
+function canvasSetup(canvas){
+    xScale = canvas.width / window.innerWidth;
+    canvas.width = window.innerWidth;
+    yScale = canvas.height / (window.innerHeight - 100);
+    canvas.height = window.innerHeight - 100;
+}
+
 window.onload = function(){
     canvas = document.getElementById("gl-canvas");
+    canvasSetup(canvas);
     gl = WebGLUtils.setupWebGL(canvas);
     if(!gl) { alert("WebGL isn't available"); }
 
 
-    let rySlider = document.getElementById("rySlider");
+    let rySlider = $("rySlider");
     rySlider.oninput = function(){
         ryValue = parseFloat(rySlider.value);
     }
@@ -44,7 +57,7 @@ window.onload = function(){
     rxValue = 0;
     ryValue = 0;
 
-    document.getElementById("dimetric").click();
+    $("dimetric").click();
     gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     render();
@@ -56,9 +69,11 @@ function render(){
     var eye = [0, 0, 0];
     var up = [0, 1, 0];
     mView = lookAt(eye, at, up);
-    mView = mult(mView, translate(0,0,-1));
-    mView = mult(mView, rotateX(theta));
-    mView = mult(mView, rotateY(gamma));
+    mView = mult(rotateY(ryValue), mView);
+    mView = mult(rotateX(rxValue), mView);
+    mView = mult(scalem(xScale,yScale,1), mView);  
+    //mView = mult(translate(0,0,-1), mView);
+
     
     mProjection = ortho(-2,2,-2,2,-10,10);
 
@@ -72,74 +87,87 @@ function render(){
 }
 
 function setupButtons(){
-    document.getElementById("cubeButton").onclick = function(){
+    $("cubeButton").onclick = function(){
         cubeInit(gl);
         currentMModel = mat4();
         draw_function = cubeDraw;
     }
 
 
-    document.getElementById("cylinderButton").onclick = function(){
+    $("cylinderButton").onclick = function(){
         cylinderInit(gl);
         currentMModel = mat4();
         draw_function = cylinderDraw;
     }
 
 
-    document.getElementById("sphereButton").onclick = function(){
+    $("sphereButton").onclick = function(){
         sphereInit(gl,0,0);
         currentMModel = mat4();
         draw_function = sphereDraw;
     }
 
 
-    document.getElementById("bunnyButton").onclick = function(){
+    $("bunnyButton").onclick = function(){
         bunnyInit(gl);
-        //currentMModel = mult(mat4(),scalem(5,5,5));
+        currentMModel = mult(mat4(),scalem(5,5,5));
         draw_function = bunnyDraw;
     }
 
     
-    document.getElementById("torusButton").onclick = function(){
+    $("torusButton").onclick = function(){
         torusInit(gl);
         currentMModel = mat4();
         draw_function = torusDraw;
     }
 
-    document.getElementById("mainElevation").onclick = function(){
+    $("mainElevation").onclick = function(){
         rxValue = 0;
         ryValue = 0;
     }
 
-    document.getElementById("plan").onclick = function(){
+    $("plan").onclick = function(){
         rxValue = 90;
         ryValue = 0;
     }
     
-    document.getElementById("rightElevation").onclick = function(){
+    $("rightElevation").onclick = function(){
         rxValue = 0;
         ryValue = 90;
     }
 
-    document.getElementById("isometric").onclick = function(){
-        rxValue = 35.26;
-        ryValue = 45;
-    }
+    $("isometric").onclick = (x => toAxonometric(30, 30));
 
-    document.getElementById("dimetric").onclick = function(){
-        rxValue = 7;
-        ryValue = 42;
+    $("dimetric").onclick = (x => toAxonometric(42, 7));
 
-        theta = Math.atan(Math.sqrt(Math.tan(ryValue)/Math.tan(rxValue))) - 90
-        gamma = Math.asin(Math.sqrt(Math.tan(ryValue)*Math.tan(rxValue)))
+    $("trimetric").onclick = (x => toAxonometric(54.16, 23.16));
 
+    $("freeAxon").onclick = (x => toAxonometric($("alpha").value, $("beta").value));
+
+    $("cavalier").onclick = function(){
         
     }
+}
 
-    document.getElementById("trimetric").onclick = function(){
-        rxValue = 23.16
-        ryValue = 54.16
-    }
+function degrees(radians) {
+    return radians * 180 / Math.PI;
+  };
+
+function toAxonometric(a, b){
+    let theta = Math.atan(Math.sqrt(Math.tan(radians(a))/Math.tan(radians(b)))) - Math.PI/2;
+    let epsilon = Math.asin(Math.sqrt(Math.tan(radians(a) * Math.tan(radians(b)))));
+    console.log("Epsilon is ", degrees(epsilon));
+    console.log("Theta is ", degrees(theta)); 
+    
+    
+    let r1 = Math.cos(epsilon);
+    let r2 = Math.cos(theta) / Math.cos(radians(b));
+    let r3 = -Math.sin(theta) / Math.cos(radians(a));
+    console.log("R1 is ",r1);
+    console.log("R2 is ",r2);
+    console.log("R3 Is ",r3);
+    rxValue = degrees(epsilon);
+    ryValue = degrees(theta);
 }
 
 function setupKeybinds(){
