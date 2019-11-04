@@ -6,7 +6,10 @@ var currentMModel;
 var filled;
 var canvas;
 var i = 0;
+var rxValue;
 var ryValue;
+var theta;
+var gamma;
 
 window.onload = function(){
     canvas = document.getElementById("gl-canvas");
@@ -38,21 +41,26 @@ window.onload = function(){
 
     filled = true;
 
+    rxValue = 0;
     ryValue = 0;
+
+    document.getElementById("dimetric").click();
+    gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
     render();
 }
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT);
     var at = [0, 0, 0];
-    var eye = [0, 0, 1];
+    var eye = [0, 0, 0];
     var up = [0, 1, 0];
     mView = lookAt(eye, at, up);
     mView = mult(mView, translate(0,0,-1));
-    mView = mult(mView, rotateX(35.26));
-    mView = mult(mView, rotateY(45));
+    mView = mult(mView, rotateX(theta));
+    mView = mult(mView, rotateY(gamma));
     
-    mProjection = ortho(-2,2,-2,2,10,-10);
+    mProjection = ortho(-2,2,-2,2,-10,10);
 
     gl.uniformMatrix4fv(mModelLoc, false, flatten(currentMModel));
     gl.uniformMatrix4fv(mViewLoc, false, flatten(mView));
@@ -87,7 +95,7 @@ function setupButtons(){
 
     document.getElementById("bunnyButton").onclick = function(){
         bunnyInit(gl);
-        currentMModel = mult(mat4(),scalem(5,5,5));
+        //currentMModel = mult(mat4(),scalem(5,5,5));
         draw_function = bunnyDraw;
     }
 
@@ -98,6 +106,40 @@ function setupButtons(){
         draw_function = torusDraw;
     }
 
+    document.getElementById("mainElevation").onclick = function(){
+        rxValue = 0;
+        ryValue = 0;
+    }
+
+    document.getElementById("plan").onclick = function(){
+        rxValue = 90;
+        ryValue = 0;
+    }
+    
+    document.getElementById("rightElevation").onclick = function(){
+        rxValue = 0;
+        ryValue = 90;
+    }
+
+    document.getElementById("isometric").onclick = function(){
+        rxValue = 35.26;
+        ryValue = 45;
+    }
+
+    document.getElementById("dimetric").onclick = function(){
+        rxValue = 7;
+        ryValue = 42;
+
+        theta = Math.atan(Math.sqrt(Math.tan(ryValue)/Math.tan(rxValue))) - 90
+        gamma = Math.asin(Math.sqrt(Math.tan(ryValue)*Math.tan(rxValue)))
+
+        
+    }
+
+    document.getElementById("trimetric").onclick = function(){
+        rxValue = 23.16
+        ryValue = 54.16
+    }
 }
 
 function setupKeybinds(){
@@ -124,15 +166,15 @@ function setupKeybinds(){
 function openTab(event,tabId){
     var i, tablinks, tabContents;
 
-    tabContents = document.getElementsByClassName("tabcontent")
-;    for(i = 0; i < tabContents.length;i++)
+    tabContents = document.getElementsByClassName("tabcontent");
+    for(i = 0; i < tabContents.length;i++)
         tabContents[i].style.display = "none";
 
     
     tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
+    for (i = 0; i < tablinks.length; i++) 
         tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
+    
 
     document.getElementById(tabId).style.display = "block";
     event.currentTarget.className += " active";    
