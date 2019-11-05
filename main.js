@@ -79,7 +79,7 @@ window.onload = function(){
 }
 
 function render(){
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
 
     gl.uniformMatrix4fv(mModelLoc, false, flatten(currentMModel));
