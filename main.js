@@ -18,7 +18,8 @@ var modelMemory =
 var defaultLookAtMatrix =
 { "at" : [0,0,0], "eye" : [0,0,0], "up" : [0,1,0]};
 
-
+var axonAngles;
+var freeAxonActive = false;
 
 function $(x){
     return document.getElementById(x);
@@ -32,22 +33,22 @@ function canvasSetup(canvas){
 }
 
 window.onload = function(){
-    canvas = document.getElementById("gl-canvas");
+    canvas = $("gl-canvas");
     canvasSetup(canvas);
     gl = WebGLUtils.setupWebGL(canvas);
     if(!gl) { alert("WebGL isn't available"); }
 
-
-    $("rySlider").oninput = function(){
-        ryValue = parseFloat($("rySlider").value);
-    };
-
     canvas.addEventListener("wheel", function(event){
-        let scaleFactor = event.deltaY > 0 ? 1.1 : 0.9;
+        document.body.style.overflow = "hidden";
+        let scaleFactor = event.deltaY > 0 ? 0.9 : 1.1;
         mProjection = mult(scalem(scaleFactor, scaleFactor, scaleFactor), mProjection);
     });
 
-    setupButtons();
+    canvas.parentElement.onclick = function(){
+        document.body.style.overflow = "scroll";
+    }
+
+    setupButtonsAndSliders();
     setupKeybinds();
 
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -69,12 +70,11 @@ window.onload = function(){
 
     filled = true;
 
-    rxValue = 0;
-    ryValue = 0;
-
     $("dimetric").click();
+    
     gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
+    gl.frontFace(gl.CCW)
     render();
 }
 
@@ -91,7 +91,7 @@ function render(){
     requestAnimationFrame(render);
 }
 
-function setupButtons(){
+function setupButtonsAndSliders(){
     $("cubeButton").onclick = function(){
         cubeInit(gl);
         currentMModel = mat4();
@@ -147,30 +147,52 @@ function setupButtons(){
     }
 
     $("isometric").onclick = function(){
-        var angles = toAxonometric(30, 30);
+        axonAngles = toAxonometric(30, 30);
 
-        orthographicView(angles[0],angles[1]);
+        orthographicView(axonAngles[0],axonAngles[1]);
     };
 
     $("dimetric").onclick = function(){
-        var angles = toAxonometric(42, 7);
+        axonAngles = toAxonometric(42, 7);
 
-        orthographicView(angles[0],angles[1]);
+        orthographicView(axonAngles[0],axonAngles[1]);
     };
 
     $("trimetric").onclick = function() {
-        var angles = toAxonometric(54.16, 23.16);
+        axonAngles = toAxonometric(54.16, 23.16);
 
-        orthographicView(angles[0],angles[1]);
+        orthographicView(axonAngles[0],axonAngles[1]);
     };
 
 
-    $("freeAxon").onclick = function(){
-        var angles = toAxonometric($("alpha").value, $("beta").value);
-    
-        orthographicView(angles[0],angles[1]);
+    $("freeAxon").onclick = function(){   
+        if(!freeAxonActive){
+            orthographicView(axonAngles[0],axonAngles[1]);
+            freeAxonActive = true;
+            
+            $("activeFreeAxonTag").innerHTML = "Active"
+            $("alphaSlider").value = "0";
+            $("betaSlider").value = "0";
+        }
+        else{
+            $("activeFreeAxonTag").innerHTML = "Inactive"
+            freeAxonActive = false;
+        }
     }
 
+    $("alphaSlider").oninput = function(event){
+        axonAngles[0] = parseFloat(event.target.value);
+        orthographicView(axonAngles[0],axonAngles[1]);
+        
+        console.log(axonAngles[0])
+    }
+
+    $("betaSlider").oninput = function(event){
+        axonAngles[1] = parseFloat(event.target.value);
+        orthographicView(axonAngles[0],axonAngles[1]);
+
+        console.log(axonAngles[1])
+    }
     /*$("isometric").onclick = (x => toAxonometric(30, 30));
 
     $("dimetric").onclick = (x => toAxonometric(42, 7));

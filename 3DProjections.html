@@ -36,7 +36,7 @@ void main() {
 <script type="text/javascript" src="main.js"></script>
 
 </head>
-<body>
+<body style = "overflow: hidden;">
     <title>3D Projection</title>
     <canvas id="gl-canvas" width="512" height="512">
         Oops... your browser doesn't support the HTML5 canvas element"
@@ -77,10 +77,9 @@ void main() {
         <p><button id = "isometric">Isometric</button></p>
         <p><button id = "dimetric">Dimetric</button></p>    
         <p><button id = "trimetric">Trimetric</button></p>        
-        <p><button id = "freeAxon">Free Mode</button></p>   
-        Alpha:<input type="text" id = "alpha" size="3"> Degrees
-        <p>
-        Beta:<input type="text" id = "beta" size="3"> Degrees     
+        <p><button id = "freeAxon">Free Mode</button> <span id = "activeFreeAxonTag">Inactive</span></p>
+        <p>Alpha:<input type="range" id = "alphaSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>
+        <p>Beta:<input type="range" id = "betaSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>   
     </div>
 
     <div id = "oblique" style ="display: none;" class = "tabcontent">
@@ -92,8 +91,5 @@ void main() {
     <div id = "perspective" style ="display: none;" class = "tabcontent">
         perspective
     </div>
-    
 
-    <br>
-    <input type="range" id = "rySlider" min = "-180" max = "180" step = "0.01"/>
 </body></html>
