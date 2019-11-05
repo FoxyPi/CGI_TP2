@@ -11,8 +11,14 @@ var rxValue;
 var ryValue;
 var theta;
 var gamma;
+var mView;
 var modelMemory = 
 { "ortho" : null, "axo" : null, "oblique" : null, "perspective": null};
+
+var defaultLookAtMatrix =
+{ "at" : [0,0,0], "eye" : [0,0,0], "up" : [0,1,0]};
+
+
 
 function $(x){
     return document.getElementById(x);
@@ -74,15 +80,7 @@ window.onload = function(){
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT);
-    var at = [0, 0, 0];
-    var eye = [0, 0, 0];
-    var up = [0, 1, 0];
-    mView = lookAt(eye, at, up);
-    mView = mult(rotateY(ryValue), mView);
-    mView = mult(rotateX(rxValue), mView);
-
     
-     
 
     gl.uniformMatrix4fv(mModelLoc, false, flatten(currentMModel));
     gl.uniformMatrix4fv(mViewLoc, false, flatten(mView));
@@ -131,28 +129,70 @@ function setupButtons(){
     $("mainElevation").onclick = function(){
         rxValue = 0;
         ryValue = 0;
+
+        orthographicView(rxValue,ryValue);
     }
 
     $("plan").onclick = function(){
         rxValue = 90;
         ryValue = 0;
+        orthographicView(rxValue,ryValue);
     }
     
     $("rightElevation").onclick = function(){
         rxValue = 0;
         ryValue = 90;
+
+        orthographicView(rxValue,ryValue);
     }
 
-    $("isometric").onclick = (x => toAxonometric(30, 30));
+    $("isometric").onclick = function(){
+        var angles = toAxonometric(30, 30);
+
+        orthographicView(angles[0],angles[1]);
+    };
+
+    $("dimetric").onclick = function(){
+        var angles = toAxonometric(42, 7);
+
+        orthographicView(angles[0],angles[1]);
+    };
+
+    $("trimetric").onclick = function() {
+        var angles = toAxonometric(54.16, 23.16);
+
+        orthographicView(angles[0],angles[1]);
+    };
+
+
+    $("freeAxon").onclick = function(){
+        var angles = toAxonometric($("alpha").value, $("beta").value);
+    
+        orthographicView(angles[0],angles[1]);
+    }
+
+    /*$("isometric").onclick = (x => toAxonometric(30, 30));
 
     $("dimetric").onclick = (x => toAxonometric(42, 7));
 
     $("trimetric").onclick = (x => toAxonometric(54.16, 23.16));
 
     $("freeAxon").onclick = (x => toAxonometric($("alpha").value, $("beta").value));
+    */
+
 
     $("cavalier").onclick = function(){
-        
+        var l = 1;
+        var alpha = radians(30);
+
+        obliqueView(l,alpha)
+    }
+
+    $("cabinet").onclick = function(){
+        var l = 0.5;
+        var alpha = radians(30);
+
+        obliqueView(l,alpha)
     }
 }
 
@@ -173,8 +213,13 @@ function toAxonometric(a, b){
     console.log("R1 is ",r1);
     console.log("R2 is ",r2);
     console.log("R3 Is ",r3);
-    rxValue = degrees(epsilon);
-    ryValue = degrees(theta);
+    
+
+            //rxValue        //ryValue
+    return [degrees(epsilon),degrees(theta)];
+
+    /*rxValue = degrees(epsilon);
+    ryValue = degrees(theta);*/
 }
 
 function setupKeybinds(){
@@ -215,3 +260,16 @@ function openTab(event,tabId){
     event.currentTarget.className += " active";    
 }
 
+function orthographicView(rxValue,ryValue){
+    mView = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+    mView = mult(rotateY(ryValue), mView);
+    mView = mult(rotateX(rxValue), mView);
+}
+
+function obliqueView(l, alpha){
+    mView = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+    mView = mult(mat4([1,0,(-l * Math.cos(alpha)),0],
+                      [0,1,(-l * Math.sin(alpha)),0],
+                      [0,0,1,0],
+                      [0,0,0,1]), mView);
+}
