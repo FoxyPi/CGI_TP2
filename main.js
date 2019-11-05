@@ -51,7 +51,7 @@ window.onload = function(){
     setupKeybinds();
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0,0.0,0.0,1.0);
+    gl.clearColor(0.0,0.0,0.0,0.6);
 
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
