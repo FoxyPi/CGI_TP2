@@ -11,6 +11,8 @@ var rxValue;
 var ryValue;
 var theta;
 var gamma;
+var modelMemory = 
+{ "ortho" : null, "axo" : null, "oblique" : null, "perspective": null};
 
 function $(x){
     return document.getElementById(x);
@@ -30,10 +32,14 @@ window.onload = function(){
     if(!gl) { alert("WebGL isn't available"); }
 
 
-    let rySlider = $("rySlider");
-    rySlider.oninput = function(){
-        ryValue = parseFloat(rySlider.value);
-    }
+    $("rySlider").oninput = function(){
+        ryValue = parseFloat($("rySlider").value);
+    };
+
+    canvas.addEventListener("wheel", function(event){
+        let scaleFactor = event.deltaY > 0 ? 1.1 : 0.9;
+        mProjection = mult(scalem(scaleFactor, scaleFactor, scaleFactor), mProjection);
+    });
 
     setupButtons();
     setupKeybinds();
@@ -51,6 +57,9 @@ window.onload = function(){
     cubeInit(gl);
     currentMModel = mat4();
     draw_function = cubeDraw;
+
+    mProjection = ortho(-2,2,-2,2,-10,10);
+    mProjection = mult(scalem(xScale,yScale,1), mProjection); 
 
     filled = true;
 
@@ -71,11 +80,9 @@ function render(){
     mView = lookAt(eye, at, up);
     mView = mult(rotateY(ryValue), mView);
     mView = mult(rotateX(rxValue), mView);
-    mView = mult(scalem(xScale,yScale,1), mView);  
-    //mView = mult(translate(0,0,-1), mView);
 
     
-    mProjection = ortho(-2,2,-2,2,-10,10);
+     
 
     gl.uniformMatrix4fv(mModelLoc, false, flatten(currentMModel));
     gl.uniformMatrix4fv(mViewLoc, false, flatten(mView));
