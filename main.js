@@ -20,6 +20,9 @@ var defaultLookAtMatrix =
 
 var axonAngles;
 var freeAxonActive = false;
+var freeObliqueActive = false;
+var alphaOblique;
+var lOblique;
 
 function $(x){
     return document.getElementById(x);
@@ -204,17 +207,40 @@ function setupButtonsAndSliders(){
 
 
     $("cavalier").onclick = function(){
-        var l = 1;
-        var alpha = radians(30);
+        lOblique = 1;
+        alphaOblique = radians(30);
 
-        obliqueView(l,alpha)
+        obliqueView(lOblique,alphaOblique)
     }
 
     $("cabinet").onclick = function(){
-        var l = 0.5;
-        var alpha = radians(30);
+        lOblique = 0.5;
+        alphaOblique = radians(30);
 
-        obliqueView(l,alpha)
+        obliqueView(lOblique,alphaOblique)
+    }
+
+    $("freeOblique").onclick = function(){
+        if(!freeObliqueActive){
+            freeObliqueActive = true;
+            
+            $("activeFreeObliqueTag").innerHTML = "Active"
+            $("lSlider").value = "0.5";
+            $("alphaObliqueSlider").value = "0";
+        }
+        else{
+            $("activeFreeObliqueTag").innerHTML = "Inactive"
+            freeObliqueActive = false;
+        }
+    }
+
+    $("lSlider").oninput = function(event){
+        obliqueView(parseFloat(event.target.value),alphaOblique);
+    }
+
+    $("alphaObliqueSlider").oninput = function(event){
+        alphaOblique = radians(parseFloat(event.target.value))
+        obliqueView(lOblique, alphaOblique);
     }
 }
 

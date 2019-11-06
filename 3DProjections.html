@@ -85,7 +85,9 @@ void main() {
     <div id = "oblique" style ="display: none;" class = "tabcontent">
         <p><button id = "cavalier">Cavalier</button></p>
         <p><button id = "cabinet">Cabinet</button></p>        
-        <p><button id = "freeOlique">Free Mode</button></p>       
+        <p><button id = "freeOblique">Free Mode</button> <span id = "activeFreeObliqueTag">Inactive</span></p>  
+        <p>l:<input type="range" id = "lSlider" min = "0" max = "1" step = "0.001"></p>
+        <p>Alpha:<input type="range" id = "alphaObliqueSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>  
     </div>
 
     <div id = "perspective" style ="display: none;" class = "tabcontent">
