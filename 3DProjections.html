@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<style>
+    input{
+        border: none;
+        text-align: center;
+    }
+
+    button{
+        margin: 10px;
+    }
+</style>
 <script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
 attribute vec4 vNormal;
@@ -78,20 +88,20 @@ void main() {
         <p><button id = "dimetric">Dimetric</button></p>    
         <p><button id = "trimetric">Trimetric</button></p>        
         <p><button id = "freeAxon">Free Mode</button> <span id = "activeFreeAxonTag">Inactive</span></p>
-        <p>Alpha:<input type="range" id = "alphaSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>
-        <p>Beta:<input type="range" id = "betaSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>   
+        <p>Alpha:<input type="range" disabled id = "alphaSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="alphaDisplay" value="0" size="3" readonly> Degrees</p>
+        <p>Beta:<input type="range" disabled id = "betaSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="betaDisplay" value="0" size="3" readonly> Degrees</p>   
     </div>
 
     <div id = "oblique" style ="display: none;" class = "tabcontent">
         <p><button id = "cavalier">Cavalier</button></p>
         <p><button id = "cabinet">Cabinet</button></p>        
         <p><button id = "freeOblique">Free Mode</button> <span id = "activeFreeObliqueTag">Inactive</span></p>  
-        <p>l:<input type="range" id = "lSlider" min = "0" max = "1" step = "0.001"></p>
-        <p>Alpha:<input type="range" id = "alphaObliqueSlider" min = "-180" max = "180" step = "0.001"> Degrees</p>  
+        <p>l:<input type="range" disabled id = "lSlider" min = "0" max = "1" step = "0.001"> <input type="text" id="lDisplay" value="0" size="3" readonly></p>
+        <p>Alpha:<input type="range" disabled id = "alphaObliqueSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="alphaDisplayOblique" value="0" size="3" readonly> Degrees</p>  
     </div>
 
     <div id = "perspective" style ="display: none;" class = "tabcontent">
-        perspective
+        <p>d:<input type="range" id = "dSlider" min = "0.001" max = "5" step = "0.001"> <input type="text" id="dDisplay" value="1" size="3" readonly></p>
     </div>
 
 </body></html>
