@@ -150,7 +150,7 @@ function setupButtonsAndSliders(){
     
     $("rightElevation").onclick = function(){
         rxValue = 0;
-        ryValue = 90;
+        ryValue = -90;
 
         mView = orthographicView(rxValue,ryValue);
     }
@@ -270,7 +270,7 @@ function setupButtonsAndSliders(){
     }
     //PERSPECTIVE
     $("dSlider").oninput = function(event){
-        mView = perspectiveView(event.target.value);
+        mProjection = perspectiveView(event.target.value);
         $("dDisplay").value = event.target.value;
     }
 }
