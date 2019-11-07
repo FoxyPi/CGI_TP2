@@ -13,12 +13,17 @@ var theta;
 var gamma;
 var mView;
 var currentView = "axo";
+var normalProjection; //para guardar o "zoom" mesmo quando se faz perspective
 
 var defaultLookAtMatrix =
 { "at" : [0,0,0], "eye" : [0,0,0], "up" : [0,1,0]};
 
 var viewMemory = 
-{ "ortho" : orthographicView(0,0), "axo" : orthographicView(toAxonometric(42)), "oblique" : obliqueView(1, radians(30)), "perspective": perspectiveView(2)};
+{ "ortho" : orthographicView(0,0), 
+    "axo" : orthographicView(toAxonometric(42)), 
+    "oblique" : obliqueView(1, radians(30)), 
+    "perspective": perspectiveView(2)
+};
 
 
 var freeAxonActive = false;
@@ -70,7 +75,7 @@ window.onload = function(){
 
     mProjection = ortho(-2,2,-2,2,-10,10);
     mProjection = mult(scalem(xScale,yScale,1), mProjection); 
-
+    normalProjection = mProjection;
     filled = false;
 
     $("dimetric").click();
@@ -270,7 +275,9 @@ function setupButtonsAndSliders(){
     }
     //PERSPECTIVE
     $("dSlider").oninput = function(event){
-        mProjection = perspectiveView(event.target.value);
+        mProjection = ortho(-2,2,-2,2,-10,10);
+        mProjection = mult(scalem(xScale,yScale,1), mProjection); 
+        mProjection = mult(perspectiveView(event.target.value), mProjection);
         $("dDisplay").value = event.target.value;
     }
 }
@@ -317,7 +324,7 @@ function openTab(event,tabId){
     tabContents = document.getElementsByClassName("tabcontent");
 
     //MEMORY
-    viewMemory[currentView] = mView;
+    viewMemory[currentView] = currentView == "perspective" ? mProjection : mView;
     switch(event.target.id){
         case "orthoButton":
             currentView = "ortho";
@@ -335,7 +342,14 @@ function openTab(event,tabId){
             alert("Unexpected Button");
     }
 
-    mView = viewMemory[currentView];
+    if(currentView == "perspective"){
+        mView = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+        normalProjection = mProjection;
+        mProjection = viewMemory[currentView];
+    }else{
+        mProjection = normalProjection;
+        mView = viewMemory[currentView];
+    }
 
     //TAB FUNCTIONALITY
     for(i = 0; i < tabContents.length;i++)
@@ -371,5 +385,5 @@ function perspectiveView(d){
     return mat4([1,0,0,0],
                 [0,1,0,0],
                 [0,0,1,0],
-                [0,0,1/d,1]);
+                [0,0,-1/d,1]);
 }
