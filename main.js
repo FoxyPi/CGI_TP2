@@ -15,15 +15,7 @@ var mView;
 var currentView = "axo";
 var normalProjection; //para guardar o "zoom" mesmo quando se faz perspective
 
-var defaultLookAtMatrix =
-{ "at" : [0,0,0], "eye" : [0,0,0], "up" : [0,1,0]};
-
-var viewMemory = 
-{ "ortho" : orthographicView(0,0), 
-    "axo" : orthographicView(toAxonometric(42)), 
-    "oblique" : obliqueView(1, radians(30)), 
-    "perspective": perspectiveView(2)
-};
+var viewMemory;
 
 
 var freeAxonActive = false;
@@ -34,9 +26,9 @@ function $(x){
 }
 
 function canvasSetup(canvas){
-    xScale = canvas.width / window.innerWidth;
+    xScale =  window.innerWidth / canvas.width;
     canvas.width = window.innerWidth;
-    yScale = canvas.height / (window.innerHeight - 300);
+    yScale = (window.innerHeight - 300) / canvas.height;
     canvas.height = window.innerHeight - 300;
 }
 
@@ -70,11 +62,26 @@ window.onload = function(){
     mProjectionLoc = gl.getUniformLocation(program,"mProjection") ;
 
     cubeInit(gl);
+    cylinderInit(gl);
+    sphereInit(gl,0,0);
+    bunnyInit(gl);
+    torusInit(gl);
+
+    viewMemory={
+    "ortho" : orthographicView(0,0), 
+    "axo" : orthographicView(toAxonometric(42)), 
+    "oblique" : obliqueView(1, radians(30)), 
+    "perspective": perspectiveView(2)
+    };
+
     currentMModel = mat4();
     draw_function = cubeDraw;
 
-    mProjection = ortho(-2,2,-2,2,-10,10);
-    mProjection = mult(scalem(xScale,yScale,1), mProjection); 
+    this.console.log(xScale, yScale);
+    mProjection = ortho(-2 * xScale, 2*xScale, -2 * yScale, 2*yScale,-10,10);
+
+    mView = mat4();
+
     normalProjection = mProjection;
     filled = false;
 
@@ -85,6 +92,8 @@ window.onload = function(){
     //gl.frontFace(gl.CCW)
     render();
 }
+
+//USAR LEFT RIGHT NA TRTANSFORMAÇAO
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -103,35 +112,30 @@ function setupButtonsAndSliders(){
 
     //MODEL BUTTONS
     $("cubeButton").onclick = function(){
-        cubeInit(gl);
         currentMModel = mat4();
         draw_function = cubeDraw;
     }
 
 
     $("cylinderButton").onclick = function(){
-        cylinderInit(gl);
         currentMModel = mat4();
         draw_function = cylinderDraw;
     }
 
 
     $("sphereButton").onclick = function(){
-        sphereInit(gl,0,0);
         currentMModel = mat4();
         draw_function = sphereDraw;
     }
 
 
     $("bunnyButton").onclick = function(){
-        bunnyInit(gl);
         currentMModel = mult(mat4(),scalem(5,5,5));
         draw_function = bunnyDraw;
     }
 
     
     $("torusButton").onclick = function(){
-        torusInit(gl);
         currentMModel = mat4();
         draw_function = torusDraw;
     }
@@ -192,39 +196,39 @@ function setupButtonsAndSliders(){
 
     $("freeAxon").onclick = function(){   
         if(!freeAxonActive){
-            mView = orthographicView(axonAngles[0],axonAngles[1]);
+            mView = orthographicView($("thetaSlider").value, $("gammaSlider").value);
 
-            $("alphaSlider").disabled = false;
-            $("betaSlider").disabled = false;
+            $("gammaSlider").disabled = false;
+            $("thetaSlider").disabled = false;
             
             $("activeFreeAxonTag").innerHTML = "Active"
 
-            $("alphaSlider").value = 0;
-            $("betaSlider").value = 0;
+            $("gammaSlider").value = 0;
+            $("thetaSlider").value = 0;
 
-            $("alphaDisplay").value = 0;
-            $("betaDisplay").value = 0;
+            $("gammaDisplay").value = 0;
+            $("thetaDisplay").value = 0;
         }
         else{
             $("activeFreeAxonTag").innerHTML = "Inactive"
 
-            $("alphaSlider").disabled = true;
-            $("betaSlider").disabled = true;
+            $("gammaSlider").disabled = true;
+            $("thetaSlider").disabled = true;
         }
         freeAxonActive = !freeAxonActive;
     }
 
-    $("alphaSlider").oninput = function(event){
+    $("gammaSlider").oninput = function(event){
         if(freeAxonActive){
-            mView = orthographicView(event.target.value ,$("betaSlider").value);
-            $("alphaDisplay").value = event.target.value;
+            mView = orthographicView(event.target.value ,$("thetaSlider").value);
+            $("gammaDisplay").value = event.target.value;
         }
     }
 
-    $("betaSlider").oninput = function(event){
+    $("thetaSlider").oninput = function(event){
         if(freeAxonActive){
-            mView =  orthographicView($("alphaSlider").value, event.target.value);
-            $("betaDisplay").value = event.target.value;
+            mView =  orthographicView($("gammaSlider").value, event.target.value);
+            $("thetaDisplay").value = event.target.value;
         }
     }
 
@@ -275,9 +279,7 @@ function setupButtonsAndSliders(){
     }
     //PERSPECTIVE
     $("dSlider").oninput = function(event){
-        mProjection = ortho(-2,2,-2,2,-10,10);
-        mProjection = mult(scalem(xScale,yScale,1), mProjection); 
-        mProjection = mult(perspectiveView(event.target.value), mProjection);
+        mProjection = perspectiveView(event.target.value);
         $("dDisplay").value = event.target.value;
     }
 }
@@ -343,9 +345,10 @@ function openTab(event,tabId){
     }
 
     if(currentView == "perspective"){
-        mView = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+        mView = mat4();
         normalProjection = mProjection;
         mProjection = viewMemory[currentView];
+        console.log(mProjection);   
     }else{
         mProjection = normalProjection;
         mView = viewMemory[currentView];
@@ -366,14 +369,14 @@ function openTab(event,tabId){
 }
 
 function orthographicView(rxValue,ryValue){
-    var view = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+    var view = mat4();
     view = mult(rotateY(ryValue), view);
     view = mult(rotateX(rxValue), view);
     return view;
 }
 
 function obliqueView(l, alpha){
-    var view = lookAt(defaultLookAtMatrix.eye, defaultLookAtMatrix.at, defaultLookAtMatrix.up);
+    var view = mat4();  
     view = mult(mat4([1,0,(-l * Math.cos(alpha)),0],
                       [0,1,(-l * Math.sin(alpha)),0],
                       [0,0,1,0],
@@ -382,8 +385,188 @@ function obliqueView(l, alpha){
 }
 
 function perspectiveView(d){
-    return mat4([1,0,0,0],
+    console.log(xScale, yScale);
+    let persp = mat4([1,0,0,0],
                 [0,1,0,0],
                 [0,0,1,0],
                 [0,0,-1/d,1]);
+    return mult(ortho(-2 * xScale, 2*xScale, -2 * yScale, 2*yScale,-10,10), persp);
+}
+
+class Superquadric{
+
+    constructor(e1, e2){
+        this.super_points = [];
+        this.super_normals = [];
+        this.super_faces = [];
+        this.super_edges = [];
+        this.nlat = nlat | 20;
+        this.nlon = nlon | 30;
+        this.e1 = e1;
+        this.e2 = e2;
+        sphereBuild(nlat, nlon);
+        sphereUploadData(gl);
+    }
+    // Generate points using polar coordinates
+     sphereBuild(nlat, nlon){
+        // phi will be latitude
+        // theta will be longitude
+    
+        let d_phi = Math.PI / (nlat+1);
+        let d_theta = 2*Math.PI / nlon;
+        let r = 0.5;
+        let x,y,z;
+
+        
+        // Generate middle
+        for(var i=0, phi=Math.PI/2-d_phi; i<nlat; i++, phi-=d_phi) {
+            for(var j=0, theta=0; j<nlon; j++, theta+=d_theta) {
+                x = r * Math.pow(Math.cos(phi), e1) * Math.pow(Math.cos(theta), e2);
+                y = r * Math.pow(Math.sin(phi), e1);
+                z = r * Math.pow(Math.cos(phi), e1) * Math.pow(Math.sin(theta), e2);
+                var pt = vec3(x,y,z);
+                this.super_points.push(pt);
+                var n = vec3(pt);
+                this.super_normals.push(normalize(n));
+            }
+        }
+        
+        // Generate norh south cap
+        var south = vec3(0,-r,0);
+        this.super_points.push(south);
+        this.super_normals.push(vec3(0,-1,0));
+        
+        // Generate the faces
+        
+        // north pole faces
+        for(var i=0; i<nlon-1; i++) {
+            this.super_faces.push(0);
+            this.super_faces.push(i+2);
+            this.super_faces.push(i+1);
+        }
+        this.super_faces.push(0);
+        this.super_faces.push(1);
+        this.super_faces.push(nlon);
+        
+        // general middle faces
+        var offset=1;
+        
+        for(var i = 0; i < this.nlat-1; i++) {
+            for(var j = 0; j<this.nlon-1; j++) {
+                var p = offset+i*this.nlon+j;
+                this.super_faces.push(p);
+                this.super_faces.push(p+this.nlon+1);
+                this.super_faces.push(p+this.nlon);
+                
+                this.super_faces.push(p);
+                this.super_faces.push(p+1);
+                this.super_faces.push(p+this.nlon+1);
+            }
+            var p = offset+i*this.nlon+this.nlon-1;
+            this.super_faces.push(p);
+            this.super_faces.push(p+1);
+            this.super_faces.push(p+this.nlon);
+
+            this.super_faces.push(p);
+            this.super_faces.push(p-this.nlon+1);
+            this.super_faces.push(p+1);
+        }
+        
+        // south pole faces
+        var offset = 1 + (this.nlat-1) * this.nlon;
+        for(var j=0; j<this.nlon-1; j++) {
+            this.super_faces.push(offset+this.nlon);
+            this.super_faces.push(offset+j);
+            this.super_faces.push(offset+j+1);
+        }
+        this.super_faces.push(offset+nlon);
+        this.super_faces.push(offset+nlon-1);
+        this.super_faces.push(offset);
+    
+        // Build the edges
+        for(var i=0; i<nlon; i++) {
+            sphere_edges.push(0);   // North pole 
+            sphere_edges.push(i+1);
+        }
+
+        for(var i=0; i<nlat; i++, p++) {
+            for(var j=0; j<nlon;j++, p++) {
+                var p = 1 + i*nlon + j;
+                sphere_edges.push(p);   // horizontal line (same latitude)
+                if(j!=nlon-1) 
+                    sphere_edges.push(p+1);
+                else sphere_edges.push(p+1-nlon);
+                
+                if(i!=nlat-1) {
+                    sphere_edges.push(p);   // vertical line (same longitude)
+                    sphere_edges.push(p+nlon);
+                }
+                else {
+                    sphere_edges.push(p);
+                    sphere_edges.push(sphere_points.length-1);
+                }
+            }
+        }
+        
+    }
+
+    function sphereUploadData(gl)
+    {
+        sphere_points_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_points_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(sphere_points), gl.STATIC_DRAW);
+        
+        sphere_normals_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_normals_buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(sphere_normals), gl.STATIC_DRAW);
+        
+        sphere_faces_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere_faces_buffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.super_faces), gl.STATIC_DRAW);
+        
+        sphere_edges_buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere_edges_buffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere_edges), gl.STATIC_DRAW);
+    }
+
+    function sphereDrawWireFrame(gl, program)
+    {    
+        gl.useProgram(program);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_points_buffer);
+        var vPosition = gl.getAttribLocation(program, "vPosition");
+        gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vPosition);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_normals_buffer);
+        var vNormal = gl.getAttribLocation(program, "vNormal");
+        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vNormal);
+        
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere_edges_buffer);
+        gl.drawElements(gl.LINES, sphere_edges.length, gl.UNSIGNED_SHORT, 0);
+    }
+
+    function sphereDrawFilled(gl, program)
+    {
+        gl.useProgram(program);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_points_buffer);
+        var vPosition = gl.getAttribLocation(program, "vPosition");
+        gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vPosition);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, sphere_normals_buffer);
+        var vNormal = gl.getAttribLocation(program, "vNormal");
+        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vNormal);
+        
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphere_faces_buffer);
+        gl.drawElements(gl.TRIANGLES, this.super_faces.length, gl.UNSIGNED_SHORT, 0);
+    }
+
+    function sphereDraw(gl, program, filled=false) {
+        if(filled) sphereDrawFilled(gl, program);
+        else sphereDrawWireFrame(gl, program);
+    }
 }
