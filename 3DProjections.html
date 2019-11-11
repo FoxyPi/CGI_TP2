@@ -52,41 +52,37 @@ void main() {
     <canvas id="gl-canvas" width="512" height="512">
         Oops... your browser doesn't support the HTML5 canvas element"
     </canvas>
-    <br>
-    <button id = "cubeButton">Draw Cube</button>
-    <button id = "cylinderButton">Draw Cylinder</button>
-    <button id = "sphereButton">Draw Sphere</button>
-    <button id = "bunnyButton">Draw Bunny</button>
-    <button id = "torusButton">Draw Torus</button>
-
-    <br>
-    <br>
+    <br>    
+    Model: <select id = "models">
+            <option value = "cube">Cube</option>
+            <option value = "cylinder">Cylinder</option>
+            <option value = "sphere">Sphere</option>
+            <option value = "bunny">Bunny</option>
+            <option value = "torus">Torus</option>
+            <option value = "super">Superquadric</option>
+    </select><div id = "superSliders" style="visibility: hidden;">
+            e1: <input type="range" id = "e1Slider" min="-10" max="10" value = "0">
+            e2: <input type="range" id = "e2Slider" min="-10" max="10" value = "0">
+    </div>
+    <hr>
     <!-- TAB LINKS -->
     <div class = "tab">
-        <button id = "orthoButton" class="tablinks" 
-                    onclick="openTab(event,'orthographic')">Orthographic Projection</button>
- 
-        <button id = "axonButton" class="tablinks" 
-                    onclick="openTab(event,'axonometric')">Axonometric Projection</button>
-
-        <button id = "obliqueButton" class="tablinks" 
-                    onclick="openTab(event,'oblique')">Oblique Projection</button>
-        
-        <button id = "perspectiveButton" class="tablinks" 
-                    onclick="openTab(event,'perspective')">Perspective Projection</button>
-        <button id = "superquadricButton" class = "tablinks"
-                    onclick="openTab(event,'superquadricButton')">Superquadric</button>
+        View: <select id = "views">
+            <option value = "ortho">Orthographic</option>
+            <option value = "axo">Axonometric</option>
+            <option value = "oblique">Oblique</option>
+            <option value = "perspective">Perspective</option>
+        </select>
     </div>
-
     <br>
     <!-- TAB CONTENT -->
-    <div id = "orthographic" style ="display: none;" class = "tabcontent">
+    <div id = "orthoTab" style ="display: none;" class = "tabcontent">
         <p><button id="mainElevation">Front Elevation</button></p>
         <p><button id="plan">Plan</button></p>
         <p><button id="rightElevation">Right Side Elevation</button></p>      
     </div>
 
-    <div id = "axonometric" style ="display: none;" class = "tabcontent">
+    <div id = "axoTab" style ="display: none;" class = "tabcontent">
         <p><button id = "isometric">Isometric</button></p>
         <p><button id = "dimetric">Dimetric</button></p>    
         <p><button id = "trimetric">Trimetric</button></p>        
@@ -95,7 +91,7 @@ void main() {
         <p>Theta:<input type="range" disabled id = "thetaSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="thetaDisplay" value="0" size="3" readonly> Degrees</p>
     </div>
 
-    <div id = "oblique" style ="display: none;" class = "tabcontent">
+    <div id = "obliqueTab" style ="display: none;" class = "tabcontent">
         <p><button id = "cavalier">Cavalier</button></p>
         <p><button id = "cabinet">Cabinet</button></p>        
         <p><button id = "freeOblique">Free Mode</button> <span id = "activeFreeObliqueTag">Inactive</span></p>  
@@ -103,7 +99,7 @@ void main() {
         <p>Alpha:<input type="range" disabled id = "alphaObliqueSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="alphaDisplayOblique" value="0" size="3" readonly> Degrees</p>  
     </div>
 
-    <div id = "perspective" style ="display: none;" class = "tabcontent">
+    <div id = "perspectiveTab" style ="display: none;" class = "tabcontent">
         <p>d:<input type="range" id = "dSlider" min = "0.01" max = "5" step = "0.001"> <input type="text" id="dDisplay" value="1" size="3" readonly></p>
     </div>
 </body></html>

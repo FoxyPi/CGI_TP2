@@ -1,16 +1,16 @@
 var gl;
 var program;
-var color_buffer;
 var draw_function;
 var currentMModel;
 var filled;
-var canvas;
+var canvas, canvas_default_width, canvas_default_height;
 var xScale, yScale;
+var scaleFactor = 1;
 var i = 0;
-var rxValue;
-var ryValue;
-var theta;
-var gamma;
+
+var rxValue, ryValue;
+var theta, gamma;
+
 var mView;
 var currentView = "axo";
 var normalProjection; //para guardar o "zoom" mesmo quando se faz perspective
@@ -25,11 +25,24 @@ function $(x){
 }
 
 function canvasSetup(canvas){
-    xScale =  window.innerWidth / canvas.width;
-    canvas.width = window.innerWidth;
+    xScale =  (window.innerWidth - 20) / canvas.width;
+    canvas.width = window.innerWidth - 20;
     yScale = (window.innerHeight - 300) / canvas.height;
     canvas.height = window.innerHeight - 300;
 }
+
+/*
+TODO
+window.onresize = function(){
+    canvasSetup(canvas);
+    if(currentView != "perspective"){
+        //mProjection = mult(scalem(scaleFactor,scaleFactor,scaleFactor), ortho(-2 * xScale, 2*xScale, -2 * yScale, 2*yScale,-10,10));
+        mProjection = ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10);
+        viewMemory["perspective"] = perspectiveView($("dSlider").value);
+    }else
+        mProjection = perspectiveView($("dSlider").value);
+}
+*/
 
 window.onload = function(){
     canvas = $("gl-canvas");
@@ -39,8 +52,9 @@ window.onload = function(){
 
     canvas.addEventListener("wheel", function(event){
         document.body.style.overflow = "hidden";
-        let scaleFactor = event.deltaY > 0 ? 0.9 : 1.1;
-        mProjection = mult(scalem(scaleFactor, scaleFactor, scaleFactor), mProjection);
+        let scale = event.deltaY > 0 ? 0.91 : 1.1;
+        scaleFactor *= scale;
+        mProjection = mult(scalem(scale, scale, scale), mProjection);
     });
 
     canvas.parentElement.onclick = function(){
@@ -112,40 +126,84 @@ function render(){
 function setupButtonsAndSliders(){
 
     //MODEL BUTTONS
-    $("cubeButton").onclick = function(){
-        currentMModel = mat4();
-        draw_function = cubeDraw;
+
+    $("models").onchange = function(event){
+        let model = event.target.options[event.target.selectedIndex].value;
+       switch(model){
+           case "cube": 
+                draw_function = cubeDraw;
+                break;
+            case "cylinder":
+                draw_function = cylinderDraw;
+                break;
+            case "sphere":
+                draw_function = sphereDraw;
+                break;
+            case "bunny":
+                draw_function = bunnyDraw;
+                break;
+            case "torus":
+                draw_function = torusDraw;
+                break;
+            case "super":
+                $("superSliders").style.visibility = "visible";
+                superInit(Number($("e1Slider").value), Number($("e2Slider").value));
+                draw_function = superDraw;
+                break;
+            default:
+                alert("How did you do that?");
+       }
+
+       if(model != "super")
+        $("superSliders").style.visibility = "hidden";
     }
 
+    //SUPER
 
-    $("cylinderButton").onclick = function(){
-        currentMModel = mat4();
-        draw_function = cylinderDraw;
+    $("e1Slider").oninput = function(event){
+        superInit(event.target.value, $("e2Slider").value)
     }
 
-
-    $("sphereButton").onclick = function(){
-        currentMModel = mat4();
-        draw_function = sphereDraw;
+    $("e2Slider").oninput = function(event){
+        superInit($("e1Slider").value, event.target.value);
     }
 
+    //VIEWS
 
-    $("bunnyButton").onclick = function(){
-        currentMModel = mult(mat4(),scalem(5,5,5));
-        draw_function = bunnyDraw;
-    }
-
+    $("views").onchange = function(event){
+        var i, tablinks, tabContents;
     
-    $("torusButton").onclick = function(){
-        currentMModel = mat4();
-        draw_function = torusDraw;
+        tabContents = document.getElementsByClassName("tabcontent");
+    
+        //MEMORY
+        viewMemory[currentView] = currentView == "perspective" ? mProjection : mView;
+    
+        currentView = event.target.options[event.target.selectedIndex].value;
+    
+        if(currentView == "perspective"){
+            mView = mat4();
+            normalProjection = mProjection;
+            mProjection = viewMemory[currentView];
+            console.log(mProjection);   
+        }else{
+            mProjection = normalProjection;
+            mView = viewMemory[currentView];
+        }
+    
+        //TAB FUNCTIONALITY
+        for(i = 0; i < tabContents.length;i++)
+            tabContents[i].style.display = "none";
+    
+        
+        tablinks = event.target.options;
+        for (i = 0; i < tablinks.length; i++) 
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        
+    
+        document.getElementById(currentView + "Tab").style.display = "block";
+        event.target.options[event.target.selectedIndex].className += " active";    
     }
-
-    $("superquadricButton").onclick = function(){
-        currentMModel = mat4();
-        superInit(gl,4,4);
-        draw_function = superDraw;
-    }
+    
     //ORTHO
 
 
@@ -325,54 +383,6 @@ function setupKeybinds(){
     }
 }
 
-function openTab(event,tabId){
-    var i, tablinks, tabContents;
-
-    tabContents = document.getElementsByClassName("tabcontent");
-
-    //MEMORY
-    viewMemory[currentView] = currentView == "perspective" ? mProjection : mView;
-    switch(event.target.id){
-        case "orthoButton":
-            currentView = "ortho";
-            break;
-        case "axonButton":
-            currentView = "axo";
-            break;
-        case "obliqueButton":
-            currentView = "oblique";
-            break;
-        case "perspectiveButton":
-            currentView = "perspective";
-            break;
-        default:
-            alert("Unexpected Button");
-    }
-
-    if(currentView == "perspective"){
-        mView = mat4();
-        normalProjection = mProjection;
-        mProjection = viewMemory[currentView];
-        console.log(mProjection);   
-    }else{
-        mProjection = normalProjection;
-        mView = viewMemory[currentView];
-    }
-
-    //TAB FUNCTIONALITY
-    for(i = 0; i < tabContents.length;i++)
-        tabContents[i].style.display = "none";
-
-    
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) 
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    
-
-    document.getElementById(tabId).style.display = "block";
-    event.currentTarget.className += " active";    
-}
-
 function orthographicView(rxValue,ryValue){
     var view = mat4();
     view = mult(rotateY(ryValue), view);
@@ -390,7 +400,6 @@ function obliqueView(l, alpha){
 }
 
 function perspectiveView(d){
-    console.log(xScale, yScale);
     let persp = mat4([1,0,0,0],
                 [0,1,0,0],
                 [0,0,1,0],
