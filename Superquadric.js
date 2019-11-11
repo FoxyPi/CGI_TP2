@@ -2,8 +2,8 @@
     var super_normals = [];
     var super_faces = [];
     var super_edges = [];
-    var nlat = nlat | 20;
-    var nlon = nlon | 30;
+    var nlat = 20;
+    var nlon = 30;
     
     var super_points_buffer;
     var super_normals_buffer;
@@ -17,7 +17,6 @@
         super_edges = [];
         superBuild(e1,e2);
         superUploadData(gl);
-        console.log("Super points " + super_points.length)
     }
 
     // Generate points using polar coordinates
@@ -36,8 +35,8 @@
         super_normals.push(vec3(0,1,0));
 
         // Generate middle
-        for(var i=0, phi=Math.PI/2-d_phi; i<nlat; i++, phi-=d_phi) {
-            for(var j=0, theta=0; j<nlon; j++, theta+=d_theta) {
+        for(var i=0, phi=Math.PI/2; i<nlat; i++, phi-=d_phi) {
+            for(var j=0, theta=-Math.PI; j<nlon; j++, theta+=d_theta) {
                 x = r * expOperator(Math.cos(phi), e1) * expOperator(Math.cos(theta), e2);
                 y = r * expOperator(Math.sin(phi), e1);
                 z = r * expOperator(Math.cos(phi), e1) * expOperator(Math.sin(theta), e2);

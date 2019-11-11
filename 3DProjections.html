@@ -5,10 +5,19 @@
     input{
         border: none;
         text-align: center;
+        background: none;
     }
 
     button{
         margin: 10px;
+    }
+
+    select{
+        font-size: larger;
+    }
+
+    .tabcontent{
+        background: rgba(255, 212, 70, 0.863);
     }
 </style>
 <script id="vertex-shader" type="x-shader/x-vertex">
@@ -52,7 +61,8 @@ void main() {
     <canvas id="gl-canvas" width="512" height="512">
         Oops... your browser doesn't support the HTML5 canvas element"
     </canvas>
-    <br>    
+    <br>   
+    <div style="background: orange;">
     Model: <select id = "models">
             <option value = "cube">Cube</option>
             <option value = "cylinder">Cylinder</option>
@@ -60,13 +70,19 @@ void main() {
             <option value = "bunny">Bunny</option>
             <option value = "torus">Torus</option>
             <option value = "super">Superquadric</option>
-    </select><div id = "superSliders" style="visibility: hidden;">
-            e1: <input type="range" id = "e1Slider" min="-10" max="10" value = "0">
-            e2: <input type="range" id = "e2Slider" min="-10" max="10" value = "0">
+    </select>
+    <span id = "superSliders" style="visibility: hidden;">
+            e1: <input type="range" id = "e1Slider" min="0" max="10" step="0.01">
+            e2: <input type="range" id = "e2Slider" min="0" max="10" step="0.01">
+    </span>
+    <span style="position:absolute; right: 0px;">
+        Z-Buffer :<input id = "zbuffer" style="color: red;" size="3" value = "OFF" readonly>
+        Backface Culling :<input id = "culling" style="color: red;" size="3" value = "OFF" readonly>
+    </span>
     </div>
     <hr>
     <!-- TAB LINKS -->
-    <div class = "tab">
+    <div class = "tab" style="background: #f7e459">
         View: <select id = "views">
             <option value = "ortho">Orthographic</option>
             <option value = "axo">Axonometric</option>
@@ -74,27 +90,27 @@ void main() {
             <option value = "perspective">Perspective</option>
         </select>
     </div>
-    <br>
+    <hr>
     <!-- TAB CONTENT -->
     <div id = "orthoTab" style ="display: none;" class = "tabcontent">
-        <p><button id="mainElevation">Front Elevation</button></p>
-        <p><button id="plan">Plan</button></p>
-        <p><button id="rightElevation">Right Side Elevation</button></p>      
+        <p><input type="radio" name = "ortho" id="mainElevation" checked>Front Elevation</input></p>
+        <p><input type="radio" name = "ortho" id="plan">Plan</input></p>
+        <p><input type="radio" name = "ortho" id="rightElevation">Right Side Elevation</input></p>      
     </div>
 
-    <div id = "axoTab" style ="display: none;" class = "tabcontent">
-        <p><button id = "isometric">Isometric</button></p>
-        <p><button id = "dimetric">Dimetric</button></p>    
-        <p><button id = "trimetric">Trimetric</button></p>        
-        <p><button id = "freeAxon">Free Mode</button> <span id = "activeFreeAxonTag">Inactive</span></p>
+    <div id = "axoTab" style ="display: block;" class = "tabcontent">
+        <p><input type="radio" name = "axo" id = "isometric">Isometric</button></p>
+        <p><input type="radio" name = "axo" id = "dimetric" checked>Dimetric</button></p>    
+        <p><input type="radio" name = "axo" id = "trimetric">Trimetric</button></p>        
+        <p><input type="radio" name = "axo" id = "freeAxon">Free Mode</button></p>
         <p>Gamma:<input type="range" disabled id = "gammaSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="gammaDisplay" value="0" size="3" readonly> Degrees</p>   
         <p>Theta:<input type="range" disabled id = "thetaSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="thetaDisplay" value="0" size="3" readonly> Degrees</p>
     </div>
 
     <div id = "obliqueTab" style ="display: none;" class = "tabcontent">
-        <p><button id = "cavalier">Cavalier</button></p>
-        <p><button id = "cabinet">Cabinet</button></p>        
-        <p><button id = "freeOblique">Free Mode</button> <span id = "activeFreeObliqueTag">Inactive</span></p>  
+        <p><input type="radio" name="oblique" id = "cavalier" checked>Cavalier</button></p>
+        <p><input type="radio" name="oblique" id = "cabinet">Cabinet</button></p>        
+        <p><input type="radio" name="oblique" id = "freeOblique">Free Mode</button></p>  
         <p>l:<input type="range" disabled id = "lSlider" min = "0" max = "1" step = "0.001"> <input type="text" id="lDisplay" value="0" size="3" readonly></p>
         <p>Alpha:<input type="range" disabled id = "alphaObliqueSlider" min = "-180" max = "180" step = "0.001"><input type="text" id="alphaDisplayOblique" value="0" size="3" readonly> Degrees</p>  
     </div>

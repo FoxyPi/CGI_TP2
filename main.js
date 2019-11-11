@@ -54,7 +54,7 @@ window.onload = function(){
         document.body.style.overflow = "hidden";
         let scale = event.deltaY > 0 ? 0.91 : 1.1;
         scaleFactor *= scale;
-        mProjection = mult(scalem(scale, scale, scale), mProjection);
+        mProjection = mult(scalem(scale, scale, 1), mProjection);
     });
 
     canvas.parentElement.onclick = function(){
@@ -98,9 +98,8 @@ window.onload = function(){
     normalProjection = mProjection;
     filled = false;
 
-    $("dimetric").click();
-    
-
+    $("dimetric").click();    
+    $("views").options[1].selected = true;
 
     //gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
     //gl.cullFace(gl.BACK);
@@ -147,7 +146,7 @@ function setupButtonsAndSliders(){
                 break;
             case "super":
                 $("superSliders").style.visibility = "visible";
-                superInit(Number($("e1Slider").value), Number($("e2Slider").value));
+                superInit(gl, Number($("e1Slider").value), Number($("e2Slider").value));
                 draw_function = superDraw;
                 break;
             default:
@@ -160,12 +159,12 @@ function setupButtonsAndSliders(){
 
     //SUPER
 
-    $("e1Slider").oninput = function(event){
-        superInit(event.target.value, $("e2Slider").value)
+    $("e1Slider").oninput = function(event){        
+        superInit(gl, Number(event.target.value), Number($("e2Slider").value));
     }
 
-    $("e2Slider").oninput = function(event){
-        superInit($("e1Slider").value, event.target.value);
+    $("e2Slider").oninput = function(event){        
+        superInit(gl, Number($("e1Slider").value), Number(event.target.value));
     }
 
     //VIEWS
@@ -184,7 +183,6 @@ function setupButtonsAndSliders(){
             mView = mat4();
             normalProjection = mProjection;
             mProjection = viewMemory[currentView];
-            console.log(mProjection);   
         }else{
             mProjection = normalProjection;
             mView = viewMemory[currentView];
@@ -230,8 +228,8 @@ function setupButtonsAndSliders(){
 
     //AXO
     $("isometric").onclick = function(){
-        if(freeAxonActive)
-            $("freeAxon").click();
+        $("gammaSlider").disabled = true;
+        $("thetaSlider").disabled = true;
 
         let axonAngles = toAxonometric(30, 30);
 
@@ -239,8 +237,8 @@ function setupButtonsAndSliders(){
     };
 
     $("dimetric").onclick = function(){
-        if(freeAxonActive)
-            $("freeAxon").click();
+        $("gammaSlider").disabled = true;
+        $("thetaSlider").disabled = true;
 
         let axonAngles = toAxonometric(42, 7);
 
@@ -248,8 +246,8 @@ function setupButtonsAndSliders(){
     };
 
     $("trimetric").onclick = function() {
-        if(freeAxonActive)
-            $("freeAxon").click();
+        $("gammaSlider").disabled = true;
+        $("thetaSlider").disabled = true;
 
         let axonAngles = toAxonometric(54.16, 23.16);
 
@@ -258,86 +256,57 @@ function setupButtonsAndSliders(){
 
 
     $("freeAxon").onclick = function(){   
-        if(!freeAxonActive){
             mView = orthographicView($("thetaSlider").value, $("gammaSlider").value);
 
             $("gammaSlider").disabled = false;
             $("thetaSlider").disabled = false;
             
-            $("activeFreeAxonTag").innerHTML = "Active"
-
-            $("gammaSlider").value = 0;
-            $("thetaSlider").value = 0;
-
-            $("gammaDisplay").value = 0;
-            $("thetaDisplay").value = 0;
-        }
-        else{
-            $("activeFreeAxonTag").innerHTML = "Inactive"
-
-            $("gammaSlider").disabled = true;
-            $("thetaSlider").disabled = true;
-        }
-        freeAxonActive = !freeAxonActive;
-    }
+            $("gammaDisplay").value = $("gammaSlider").value;
+            $("thetaDisplay").value = $("thetaSlider").value;
+}
 
     $("gammaSlider").oninput = function(event){
-        if(freeAxonActive){
-            mView = orthographicView(event.target.value ,$("thetaSlider").value);
-            $("gammaDisplay").value = event.target.value;
-        }
+        mView = orthographicView(event.target.value ,$("thetaSlider").value);
+        $("gammaDisplay").value = event.target.value;
     }
 
     $("thetaSlider").oninput = function(event){
-        if(freeAxonActive){
-            mView =  orthographicView($("gammaSlider").value, event.target.value);
-            $("thetaDisplay").value = event.target.value;
-        }
+        mView =  orthographicView($("gammaSlider").value, event.target.value);
+        $("thetaDisplay").value = event.target.value;
     }
 
 
     //OBLIQUE
     $("cavalier").onclick = function(){
-        if(freeObliqueActive)
-            $("freeOblique").click();
+        $("alphaObliqueSlider").disabled = true;
+        $("lSlider").disabled = true;
+
         mView = obliqueView(1,radians(30));
     }
 
     $("cabinet").onclick = function(){
-        if(freeObliqueActive)
-            $("freeOblique").click();
+        $("alphaObliqueSlider").disabled = true;
+        $("lSlider").disabled = true;
+
         mView = obliqueView(0.5,radians(30));
     }
 
     $("freeOblique").onclick = function(){
-        if(!freeObliqueActive){
             mView = obliqueView($("lSlider").value, $("alphaObliqueSlider").value);
             $("alphaObliqueSlider").disabled = false;
             $("lSlider").disabled = false;
 
-            $("activeFreeObliqueTag").innerHTML = "Active"
-
-            $("lSlider").value = 0.5;
-            $("alphaObliqueSlider").value = 0;
-
-            $("lDisplay").value = 0.5;
-            $("alphaDisplayOblique").value = 0;
-        }
-        else{
-            $("activeFreeObliqueTag").innerHTML = "Inactive"
-
-            $("alphaObliqueSlider").disabled = true;
-            $("lSlider").disabled = true;
-        }
-
-        freeObliqueActive = !freeObliqueActive;
+            $("lDisplay").value = $("lSlider").value;
+            $("alphaDisplayOblique").value = $("alphaObliqueSlider").value;
     }
 
     $("lSlider").oninput = function(event){
+        $("lDisplay").value = event.target.value;
         mView = obliqueView(event.target.value,$("alphaObliqueSlider").value);
     }
 
     $("alphaObliqueSlider").oninput = function(event){
+        $("alphaDisplayOblique").value = event.target.value;
         mView = obliqueView($("lSlider").value, radians(event.target.value));
     }
     //PERSPECTIVE
@@ -374,10 +343,24 @@ function setupKeybinds(){
             case "z":
                 gl.isEnabled(gl.DEPTH_TEST) ? gl.disable(gl.DEPTH_TEST) : gl.enable(gl.DEPTH_TEST);
                 gl.depthFunc(gl.LESS);
+                if(gl.isEnabled(gl.DEPTH_TEST)){
+                    $("zbuffer").style.color = "green";
+                    $("zbuffer").value = "ON";
+                }else{
+                    $("zbuffer").style.color = "red";
+                    $("zbuffer").value = "OFF";
+                }
                 break;
             case "b":
                 gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
                 gl.cullFace(gl.BACK);
+                if(gl.isEnabled(gl.CULL_FACE)){
+                    $("culling").style.color = "green";
+                    $("culling").value = "ON";
+                }else{
+                    $("culling").style.color = "red";
+                    $("culling").value = "OFF";
+                }
                 break;
         }
     }
