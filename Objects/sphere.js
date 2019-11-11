@@ -16,6 +16,7 @@ function sphereInit(gl, nlat, nlon) {
     nlon = nlon | SPHERE_LONS;
     sphereBuild(nlat, nlon);
     sphereUploadData(gl);
+    console.log("Sphere points " + sphere_points.length);
 }
 
 // Generate points using polar coordinates

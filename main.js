@@ -14,7 +14,6 @@ var gamma;
 var mView;
 var currentView = "axo";
 var normalProjection; //para guardar o "zoom" mesmo quando se faz perspective
-
 var viewMemory;
 
 
@@ -87,6 +86,8 @@ window.onload = function(){
 
     $("dimetric").click();
     
+
+
     //gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
     //gl.cullFace(gl.BACK);
     //gl.frontFace(gl.CCW)
@@ -140,7 +141,11 @@ function setupButtonsAndSliders(){
         draw_function = torusDraw;
     }
 
-
+    $("superquadricButton").onclick = function(){
+        currentMModel = mat4();
+        superInit(gl,4,4);
+        draw_function = superDraw;
+    }
     //ORTHO
 
 

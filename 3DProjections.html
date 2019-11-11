@@ -43,6 +43,7 @@ void main() {
 <script type="text/javascript" src="Objects/cylinder.js"></script>
 <script type="text/javascript" src="Objects/sphere.js"></script>
 <script type="text/javascript" src="Objects/torus.js"></script>
+<script type="text/javascript" src="Superquadric.js"></script>
 <script type="text/javascript" src="main.js"></script>
 
 </head>
@@ -73,6 +74,8 @@ void main() {
         
         <button id = "perspectiveButton" class="tablinks" 
                     onclick="openTab(event,'perspective')">Perspective Projection</button>
+        <button id = "superquadricButton" class = "tablinks"
+                    onclick="openTab(event,'superquadricButton')">Superquadric</button>
     </div>
 
     <br>
@@ -103,5 +106,4 @@ void main() {
     <div id = "perspective" style ="display: none;" class = "tabcontent">
         <p>d:<input type="range" id = "dSlider" min = "0.01" max = "5" step = "0.001"> <input type="text" id="dDisplay" value="1" size="3" readonly></p>
     </div>
-
 </body></html>
