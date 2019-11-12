@@ -28,26 +28,29 @@ function $(x){
 function canvasSetup(canvas){
     xScale =  (window.innerWidth - 20) / canvas_default_width;
     canvas.width = window.innerWidth - 20;
-    yScale = (window.innerHeight - Y_PIXEL_MARGIN) / canvas_default_height;
-    canvas.height = window.innerHeight - Y_PIXEL_MARGIN;   
+    yScale = (Math.abs(window.innerHeight - Y_PIXEL_MARGIN)) / canvas_default_height;
+    canvas.height = Math.abs(window.innerHeight - Y_PIXEL_MARGIN);  
+    gl.viewport(0, 0, canvas.width, canvas.height);
 }
 
 window.onresize = function(){
     canvasSetup(canvas);
+
     if(currentView != "perspective"){
-        //mProjection = ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10);
-        this.console.log(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale);
+        mProjection =mult(scalem(scaleFactor , scaleFactor , 1),ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10));
         viewMemory["perspective"] = perspectiveView($("dSlider").value);
     }else
         mProjection = perspectiveView($("dSlider").value);
+
+    normalProjection = mult(scalem(scaleFactor, scaleFactor, 1),ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10));
 }
 
 window.onload = function(){
     canvas = $("gl-canvas");
     this.canvas_default_width = canvas.width;
     this.canvas_default_height = canvas.height;
-    canvasSetup(canvas);
     gl = WebGLUtils.setupWebGL(canvas);
+    canvasSetup(canvas);
     if(!gl) { alert("WebGL isn't available"); }
 
     canvas.addEventListener("wheel", function(event){
@@ -311,7 +314,7 @@ function setupButtonsAndSliders(){
     }
     //PERSPECTIVE
     $("dSlider").oninput = function(event){
-        mProjection = perspectiveView(event.target.value);
+        mProjection = mult(scalem(scaleFactor, scaleFactor, 1),perspectiveView(event.target.value));
         $("dDisplay").value = event.target.value;
     }
 }
