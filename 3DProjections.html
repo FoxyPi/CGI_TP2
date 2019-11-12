@@ -18,6 +18,11 @@
 
     .tabcontent{
         background: rgba(255, 212, 70, 0.863);
+        padding: 10px;
+    }
+
+    option{
+        font-size: larger;
     }
 </style>
 <script id="vertex-shader" type="x-shader/x-vertex">
@@ -62,7 +67,7 @@ void main() {
         Oops... your browser doesn't support the HTML5 canvas element"
     </canvas>
     <br>   
-    <div style="background: orange;">
+    <div style="background: orange; padding: 10px;">
     Model: <select id = "models">
             <option value = "cube">Cube</option>
             <option value = "cylinder">Cylinder</option>
@@ -80,9 +85,8 @@ void main() {
         Backface Culling :<input id = "culling" style="color: red;" size="3" value = "OFF" readonly>
     </span>
     </div>
-    <hr>
     <!-- TAB LINKS -->
-    <div class = "tab" style="background: #f7e459">
+    <div class = "tab" style="background: #f7e459; padding: 10px;">
         View: <select id = "views">
             <option value = "ortho">Orthographic</option>
             <option value = "axo">Axonometric</option>
@@ -90,7 +94,6 @@ void main() {
             <option value = "perspective">Perspective</option>
         </select>
     </div>
-    <hr>
     <!-- TAB CONTENT -->
     <div id = "orthoTab" style ="display: none;" class = "tabcontent">
         <p><input type="radio" name = "ortho" id="mainElevation" checked>Front Elevation</input></p>

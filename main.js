@@ -1,5 +1,6 @@
 var gl;
 var program;
+const Y_PIXEL_MARGIN = 300;
 var draw_function;
 var currentMModel;
 var filled;
@@ -25,27 +26,26 @@ function $(x){
 }
 
 function canvasSetup(canvas){
-    xScale =  (window.innerWidth - 20) / canvas.width;
+    xScale =  (window.innerWidth - 20) / canvas_default_width;
     canvas.width = window.innerWidth - 20;
-    yScale = (window.innerHeight - 300) / canvas.height;
-    canvas.height = window.innerHeight - 300;
+    yScale = (window.innerHeight - Y_PIXEL_MARGIN) / canvas_default_height;
+    canvas.height = window.innerHeight - Y_PIXEL_MARGIN;   
 }
 
-/*
-TODO
 window.onresize = function(){
     canvasSetup(canvas);
     if(currentView != "perspective"){
-        //mProjection = mult(scalem(scaleFactor,scaleFactor,scaleFactor), ortho(-2 * xScale, 2*xScale, -2 * yScale, 2*yScale,-10,10));
-        mProjection = ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10);
+        //mProjection = ortho(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale,-10,10);
+        this.console.log(-2 * xScale, 2 * xScale, -2 * yScale, 2 * yScale);
         viewMemory["perspective"] = perspectiveView($("dSlider").value);
     }else
         mProjection = perspectiveView($("dSlider").value);
 }
-*/
 
 window.onload = function(){
     canvas = $("gl-canvas");
+    this.canvas_default_width = canvas.width;
+    this.canvas_default_height = canvas.height;
     canvasSetup(canvas);
     gl = WebGLUtils.setupWebGL(canvas);
     if(!gl) { alert("WebGL isn't available"); }
@@ -65,7 +65,7 @@ window.onload = function(){
     setupKeybinds();
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0,0.0,0.0,0.6);
+    gl.clearColor(0.4,0.4,0.4,1.0);
 
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
@@ -90,12 +90,12 @@ window.onload = function(){
     currentMModel = mat4();
     draw_function = cubeDraw;
 
-    this.console.log(xScale, yScale);
     mProjection = ortho(-2 * xScale, 2*xScale, -2 * yScale, 2*yScale,-10,10);
 
     mView = mat4();
 
     normalProjection = mProjection;
+
     filled = false;
 
     $("dimetric").click();    
@@ -107,7 +107,7 @@ window.onload = function(){
     render();
 }
 
-//USAR LEFT RIGHT NA TRTANSFORMAÇAO
+//USAR LEFT RIGHT NA TRANSFORMAÇAO
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
