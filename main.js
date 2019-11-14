@@ -236,6 +236,8 @@ function setupButtonsAndSliders(){
 
         let axonAngles = toAxonometric(30, 30);
 
+        console.log("Theta: " + axonAngles[1]);
+        console.log("gamma: " + axonAngles[0]);
         mView = orthographicView(axonAngles[0],axonAngles[1]);
     };
 
@@ -325,12 +327,12 @@ function degrees(radians) {
 
 function toAxonometric(a, b){
     let theta = Math.atan(Math.sqrt(Math.tan(radians(a))/Math.tan(radians(b)))) - Math.PI/2;
-    let epsilon = Math.asin(Math.sqrt(Math.tan(radians(a) * Math.tan(radians(b)))));
+    let gamma = Math.asin(Math.sqrt(Math.tan(radians(a)) * Math.tan(radians(b))));
 
             //rxValue        //ryValue
-    return [degrees(epsilon),degrees(theta)];
+    return [degrees(gamma),degrees(theta)];
 
-    /*rxValue = degrees(epsilon);
+    /*rxValue = degrees(gamma);
     ryValue = degrees(theta);*/
 }
 
