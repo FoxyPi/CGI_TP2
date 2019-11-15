@@ -104,13 +104,8 @@ window.onload = function(){
     $("dimetric").click();    
     $("views").options[1].selected = true;
 
-    //gl.isEnabled(gl.CULL_FACE) ? gl.disable(gl.CULL_FACE) : gl.enable(gl.CULL_FACE);
-    //gl.cullFace(gl.BACK);
-    //gl.frontFace(gl.CCW)
     render();
 }
-
-//USAR LEFT RIGHT NA TRANSFORMAÇAO
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -331,9 +326,6 @@ function toAxonometric(a, b){
 
             //rxValue        //ryValue
     return [degrees(gamma),degrees(theta)];
-
-    /*rxValue = degrees(gamma);
-    ryValue = degrees(theta);*/
 }
 
 function setupKeybinds(){
